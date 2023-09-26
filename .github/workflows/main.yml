@@ -19,7 +19,7 @@ jobs:
           docker run --rm \
             --volume "$(pwd):/data" \
             --user $(id -u):$(id -g) \
-            pandoc/latex "Zsmf.md" -o "$FILENAME" --template eisvogel --listings
+            pandoc/extra "Zsmf.md" -o "$FILENAME" --template eisvogel --listings
 
       - name: Upload PDF
         run: |
