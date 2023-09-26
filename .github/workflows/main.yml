@@ -16,6 +16,8 @@ jobs:
       - name: Build PDF
         run: |
           FILENAME="$(basename $(dirname $PWD)).pdf"
+          echo "$FILENAME"
+          echo "$PWD"
           docker run --rm \
             --volume "$(pwd):/data" \
             --user $(id -u):$(id -g) \
