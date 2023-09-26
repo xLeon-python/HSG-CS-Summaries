@@ -13,22 +13,22 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v2
 
-      - name: Build PDF
+      - name: Build and Upload PDFs
         run: |
-          FILENAME="$(basename $(dirname $PWD)).pdf"
-          echo "$FILENAME"
-          echo "$PWD"
-          docker run --rm \
-            --volume "$(pwd):/data" \
-            --user $(id -u):$(id -g) \
-            pandoc/extra "Zsmf.md" -o "$FILENAME" --template eisvogel --listings
+          find . -name "*.md" | while read -r mdfile; do
+            dir=$(dirname "$mdfile")
+            filename=$(basename "$dir").pdf
+            docker run --rm \
+              --volume "$(pwd):/data" \
+              --user $(id -u):$(id -g) \
+              --workdir "/data/$dir" \
+              pandoc/extra "$(basename "$mdfile")" -o "$filename" --template eisvogel --listings
 
-      - name: Upload PDF
-        run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.SERVER_SSH_KEY }}" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          scp -P ${{ secrets.SERVER_PORT }} "$(basename $(dirname $PWD)).pdf" ${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_ADDRESS }}:/home/leon/services/data/ghost/ghost/files/
+            mkdir -p ~/.ssh
+            echo "${{ secrets.SERVER_SSH_KEY }}" > ~/.ssh/id_rsa
+            chmod 600 ~/.ssh/id_rsa
+            scp -P ${{ secrets.SERVER_PORT }} "$dir/$filename" ${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_ADDRESS }}:/home/leon/services/data/ghost/ghost/files/
+          done
         env:
           SERVER_SSH_KEY: ${{ secrets.SERVER_SSH_KEY }}
           SERVER_PORT: ${{ secrets.SERVER_PORT }}
