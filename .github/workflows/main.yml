@@ -13,15 +13,13 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v2
 
-      - name: Install Pandoc
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y pandoc
-
       - name: Build PDF
         run: |
           FILENAME="$(basename $(dirname $PWD)).pdf"
-          pandoc "Zsmf.md" -o "$FILENAME" --from markdown --template "../../eisvogel.latex" --listings
+          docker run --rm \
+            --volume "$(pwd):/data" \
+            --user $(id -u):$(id -g) \
+            pandoc/latex "Zsmf.md" -o "$FILENAME" --template eisvogel --listings
 
       - name: Upload PDF
         run: |
