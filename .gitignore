@@ -1,0 +1,13 @@
+# Ignore everything
+*
+
+# But don't ignore directories
+!*/
+
+# Don’t ignore .gitignore file
+!.gitignore
+
+# Don't ignore all Notes directories and their contents
+!**/Notes/
+!**/Notes/**
+
