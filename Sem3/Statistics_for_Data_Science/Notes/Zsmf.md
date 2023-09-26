@@ -31,8 +31,6 @@ warning-box: [warning]
 error-box: [error]
 ---
 
-# Topic 1
-
 # Exercices
 
 ## Week1
