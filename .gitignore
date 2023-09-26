@@ -1,13 +1,18 @@
-# Ignore everything
+# Ignore all files and folders by default
 *
 
 # But don't ignore directories
 !*/
 
-# Don’t ignore .gitignore file
-!.gitignore
+# Ignore specific directories
+Sem3/Distributed_Systems/Assignments/Assignment1/*
+Sem2/Programming_Methodology/Assignments/*
 
-# Don't ignore all Notes directories and their contents
-!**/Notes/
-!**/Notes/**
+# Ignore all .gitignore files
+.gitignore
 
+# But don't ignore the root .gitignore file
+!/.gitignore
+
+# Include all Zsmf.md files under any Notes folder
+!**/Notes/Zsmf.md
