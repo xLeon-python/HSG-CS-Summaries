@@ -1,0 +1,34 @@
+name: Build and Upload PDF
+
+on:
+  push:
+    paths:
+      - '**/*.md'
+
+jobs:
+  build_and_upload:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Setup Pandoc
+        uses: docker://pandoc/latex:latest
+
+      - name: Build PDF
+        run: |
+          FILENAME="$(basename $(dirname $PWD)).pdf"
+          pandoc "Zsmf.md" -o "$FILENAME" --from markdown --template "../../eisvogel.latex" --listings
+
+      - name: Upload PDF
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SERVER_SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          scp -P ${{ secrets.SERVER_PORT }} "$(basename $(dirname $PWD)).pdf" ${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_ADDRESS }}:/home/leon/services/data/ghost/ghost/files/
+        env:
+          SERVER_SSH_KEY: ${{ secrets.SERVER_SSH_KEY }}
+          SERVER_PORT: ${{ secrets.SERVER_PORT }}
+          SERVER_USERNAME: ${{ secrets.SERVER_USERNAME }}
+          SERVER_ADDRESS: ${{ secrets.SERVER_ADDRESS }}
