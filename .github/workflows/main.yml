@@ -22,7 +22,7 @@ jobs:
               --volume "$(pwd):/data" \
               --user $(id -u):$(id -g) \
               --workdir "/data/$dir" \
-              pandoc/extra "$(basename "$mdfile")" -o "$filename" --template eisvogel --listings
+              pandoc/latex "$(basename "$mdfile")" -o "$filename" --template "../../eisvogel.latex" --listings
 
             mkdir -p ~/.ssh
             echo "${{ secrets.SERVER_SSH_KEY }}" > ~/.ssh/id_rsa
