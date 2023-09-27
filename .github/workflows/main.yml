@@ -21,13 +21,14 @@ jobs:
 
     - name: Build PDFs
       run: |
-        find . -type f -name '*.md' | while read file; do
+        find $GITHUB_WORKSPACE -type f -name '*.md' | while read file; do
+          dir=$(dirname "$file")
           semester=$(echo $file | cut -d '/' -f 2)
           subject=$(echo $file | cut -d '/' -f 3)
-          output_file="${subject}.pdf"
-          template="${semester}/eisvogel.latex"
-          background="${semester}/background.pdf"
-          pandoc "$file" -o "$output_file" --template "$template" --pdf-engine=xelatex --variable titlepage-background="$background"
+          output_file="${dir}/${subject}.pdf"
+          template="${GITHUB_WORKSPACE}/${semester}/eisvogel.latex"
+          background="${GITHUB_WORKSPACE}/${semester}/background.pdf"
+          pandoc "$file" -o "$output_file" --template "$template" --variable titlepage-background="$background"
         done
 
     - name: Upload PDFs to Server
@@ -40,4 +41,4 @@ jobs:
         mkdir ~/.ssh
         echo "$SERVER_SSH_KEY" > ~/.ssh/id_rsa
         chmod 600 ~/.ssh/id_rsa
-        scp -P $SERVER_PORT *.pdf ${SERVER_USERNAME}@${SERVER_ADDRESS}:/home/leon/services/data/ghost/ghost/files/
+        find $GITHUB_WORKSPACE -type f -name '*.pdf' -exec scp -P $SERVER_PORT {} ${SERVER_USERNAME}@${SERVER_ADDRESS}:/home/leon/services/data/ghost/ghost/files/ \;
