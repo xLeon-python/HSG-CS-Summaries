@@ -7,7 +7,7 @@ numbersections: true
 lang: en
 titlepage: true
 titlepage-rule-color: 360049
-titlepage-background: ../../background.pdf
+titlepage-background: $GITHUB_WORKSPACE/Sem3/background.pdf
 toc: true
 toc-own-page: true
 float-placement-figure: H
