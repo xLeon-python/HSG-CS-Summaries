@@ -27,7 +27,7 @@ jobs:
           output_file="${subject}.pdf"
           template="${semester}/eisvogel.latex"
           background="${semester}/background.pdf"
-          pandoc "$file" -o "$output_file" --template "$template" --variable titlepage-background="$background"
+          pandoc "$file" -o "$output_file" --template "$template" --pdf-engine=xelatex --variable titlepage-background="$background"
         done
 
     - name: Upload PDFs to Server
