@@ -19,5 +19,7 @@ eisvogel.latex
 # Include main eisvogel template
 !/eisvogel.latex
 
+!**/background.pdf
+
 # Include all Zsmf.md files under any Notes folder
 !**/Notes/Zsmf.md
