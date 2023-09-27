@@ -24,10 +24,11 @@ jobs:
 
       - name: Build and Upload PDFs
         run: |
+          EISVOGEL_PATH="/home/runner/work/${{ github.repository }}/${{ github.repository }}/eisvogel.latex"
           find . -name "*.md" | while read -r mdfile; do
             dir=$(dirname "$mdfile")
             filename=$(basename "$dir").pdf
-            pandoc "$mdfile" -o "$dir/$filename" --template "../../eisvogel.latex" --listings
+            pandoc "$mdfile" -o "$dir/$filename" --template "$EISVOGEL_PATH" --listings
 
             mkdir -p ~/.ssh
             echo "${{ secrets.SERVER_SSH_KEY }}" > ~/.ssh/id_rsa
