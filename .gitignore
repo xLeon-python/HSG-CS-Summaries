@@ -4,6 +4,8 @@
 # But don't ignore directories
 !*/
 
+Sem1
+
 # Ignore specific directories
 Sem3/Distributed_Systems/Assignments/Assignment1/*
 Sem2/Programming_Methodology/Assignments/*
