@@ -22,16 +22,19 @@ jobs:
         run: |
           sudo apt-get install -y texlive-full 
 
-      - name: Build and Upload PDFs
+      - name: Build and Upload PDFs of Changed .md Files
         run: |
-          find . -name "*.md" | while read -r mdfile; do
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SERVER_SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          
+          # Get changed .md files since last commit
+          changed_files=$(git diff --name-only HEAD^ HEAD | grep '\.md$')
+          
+          for mdfile in $changed_files; do
             dir=$(dirname "$mdfile")
             filename=$(basename "$dir").pdf
             pandoc "$mdfile" -o "$dir/$filename" --template "$GITHUB_WORKSPACE/eisvogel.latex" --listings
-
-            mkdir -p ~/.ssh
-            echo "${{ secrets.SERVER_SSH_KEY }}" > ~/.ssh/id_rsa
-            chmod 600 ~/.ssh/id_rsa
             scp -P ${{ secrets.SERVER_PORT }} "$dir/$filename" ${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_ADDRESS }}:/home/leon/services/data/ghost/ghost/files/
           done
         env:
