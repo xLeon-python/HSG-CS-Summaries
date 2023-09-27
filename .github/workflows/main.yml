@@ -1,4 +1,4 @@
-name: Build and Upload PDF
+name: Build and Upload PDFs
 
 on:
   push:
@@ -10,35 +10,37 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v2
+    - name: Checkout Repository
+      uses: actions/checkout@v2
 
-      - name: Install Pandoc
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y pandoc
+    - name: Install Pandoc and texlive
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y pandoc
+        sudo apt-get install -y texlive-xetex texlive-fonts-recommended texlive-generic-recommended
 
-      - name: Install TeX Live & Dependencies
-        run: |
-          sudo apt-get install -y texlive-full 
+    - name: Detect Changed Files and Build PDFs
+      run: |
+        changed_files=$(git diff --name-only HEAD^ HEAD)
+        for file in $changed_files; do
+          if [[ $file == *.md ]]; then
+            semester=$(echo $file | cut -d '/' -f 1)
+            subject=$(echo $file | cut -d '/' -f 2)
+            output_file="${subject}.pdf"
+            template="${semester}/eisvogel.latex"
+            background="${semester}/background.pdf"
+            pandoc $file -o $output_file --template $template --variable titlepage-background=$background
+          fi
+        done
 
-      - name: Build and Upload PDFs of Changed .md Files
-        run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.SERVER_SSH_KEY }}" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          
-          # Get changed .md files since last commit
-          changed_files=$(git diff --name-only HEAD^ HEAD | grep '\.md$')
-          
-          for mdfile in $changed_files; do
-            dir=$(dirname "$mdfile")
-            filename=$(basename "$dir").pdf
-            pandoc "$mdfile" -o "$dir/$filename" --template "$GITHUB_WORKSPACE/eisvogel.latex" --listings
-            scp -P ${{ secrets.SERVER_PORT }} "$dir/$filename" ${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_ADDRESS }}:/home/leon/services/data/ghost/ghost/files/
-          done
-        env:
-          SERVER_SSH_KEY: ${{ secrets.SERVER_SSH_KEY }}
-          SERVER_PORT: ${{ secrets.SERVER_PORT }}
-          SERVER_USERNAME: ${{ secrets.SERVER_USERNAME }}
-          SERVER_ADDRESS: ${{ secrets.SERVER_ADDRESS }}
+    - name: Upload PDFs to Server
+      env:
+        SERVER_ADDRESS: ${{ secrets.SERVER_ADDRESS }}
+        SERVER_PORT: ${{ secrets.SERVER_PORT }}
+        SERVER_SSH_KEY: ${{ secrets.SERVER_SSH_KEY }}
+        SERVER_USERNAME: ${{ secrets.SERVER_USERNAME }}
+      run: |
+        mkdir ~/.ssh
+        echo "$SERVER_SSH_KEY" > ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
+        scp -P $SERVER_PORT *.pdf ${SERVER_USERNAME}@${SERVER_ADDRESS}:/home/leon/services/data/ghost/ghost/files/
