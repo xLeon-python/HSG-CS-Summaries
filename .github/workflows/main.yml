@@ -13,16 +13,21 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v2
 
+      - name: Install Pandoc
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y pandoc
+
+      - name: Install TeX Live full
+        run: |
+          sudo apt-get install -y texlive-full
+
       - name: Build and Upload PDFs
         run: |
           find . -name "*.md" | while read -r mdfile; do
             dir=$(dirname "$mdfile")
             filename=$(basename "$dir").pdf
-            docker run --rm \
-              --volume "$(pwd):/data" \
-              --user $(id -u):$(id -g) \
-              --workdir "/data/$dir" \
-              pandoc/latex "$(basename "$mdfile")" -o "$filename" --template "../../eisvogel.latex" --listings
+            pandoc "$mdfile" -o "$dir/$filename" --template "../../eisvogel.latex" --listings
 
             mkdir -p ~/.ssh
             echo "${{ secrets.SERVER_SSH_KEY }}" > ~/.ssh/id_rsa
