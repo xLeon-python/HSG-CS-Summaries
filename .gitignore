@@ -14,8 +14,10 @@ Sem2/Programming_Methodology/Assignments/*
 # But don't ignore the root .gitignore file
 !/.gitignore
 
-# Include all eisvogel templates
-!**/eisvogel.latex
+eisvogel.latex
+
+# Include main eisvogel template
+!/eisvogel.latex
 
 # Include all Zsmf.md files under any Notes folder
 !**/Notes/Zsmf.md
